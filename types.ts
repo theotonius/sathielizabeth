@@ -1,0 +1,37 @@
+
+export interface Service {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+}
+
+export interface Project {
+  id: string;
+  title: string;
+  category: string;
+  image: string;
+  result: string;
+}
+
+export interface SiteData {
+  hero: {
+    name: string;
+    title: string;
+    description: string;
+    cta: string;
+  };
+  about: {
+    text: string;
+    stats: { label: string; value: string }[];
+  };
+  services: Service[];
+  projects: Project[];
+}
+
+export interface ChartData {
+  name: string;
+  reach: number;
+  engagement: number;
+  conversions: number;
+}
