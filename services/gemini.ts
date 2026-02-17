@@ -1,18 +1,17 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
 
-// Safe access to process.env to prevent top-level crashes in some browser environments
-const getApiKey = () => {
-  try {
-    return process.env.API_KEY || '';
-  } catch (e) {
-    return '';
-  }
+const getAiInstance = () => {
+  const apiKey = process.env.API_KEY;
+  if (!apiKey) return null;
+  return new GoogleGenAI({ apiKey });
 };
 
 export const generateMarketingCopy = async (topic: string, goal: string) => {
   try {
-    const ai = new GoogleGenAI({ apiKey: getApiKey() });
+    const ai = getAiInstance();
+    if (!ai) return "API Key not configured correctly.";
+    
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: `You are a professional digital marketing expert assistant. 
@@ -23,13 +22,15 @@ export const generateMarketingCopy = async (topic: string, goal: string) => {
     return response.text || "No response from AI.";
   } catch (error) {
     console.error("Gemini Error:", error);
-    return "Sorry, I couldn't generate the copy. Please check your connection or API key.";
+    return "Sorry, I couldn't generate the copy. Please check your connection.";
   }
 };
 
 export const getSiteUpdateSuggestion = async (currentData: any, updateType: string) => {
   try {
-    const ai = new GoogleGenAI({ apiKey: getApiKey() });
+    const ai = getAiInstance();
+    if (!ai) return [];
+    
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: `I want to update my digital marketing portfolio website's ${updateType} section. 

@@ -555,7 +555,8 @@ function AIChatWidget() {
           <div className="bg-indigo-600 p-5 md:p-6 text-white flex justify-between items-center shadow-lg">
             <div className="flex items-center gap-3">
               <div className="bg-white/20 p-2 rounded-lg backdrop-blur-md">
-                <Sparkles size={18} md:size={20} />
+                {/* Fixed invalid 'md:size' prop by using 'size={20}' only */}
+                <Sparkles size={20} />
               </div>
               <div className="flex flex-col">
                 <span className="font-bold text-xs md:text-sm leading-none">Expert AI Assistant</span>
@@ -574,7 +575,8 @@ function AIChatWidget() {
             ))}
             {loading && (
               <div className="flex gap-2 items-center text-[10px] md:text-xs text-indigo-500 font-bold animate-pulse px-2">
-                <Sparkles size={12} md:size={14} /> AI is typing...
+                {/* Fixed invalid 'md:size' prop by using 'size={14}' only */}
+                <Sparkles size={14} /> AI is typing...
               </div>
             )}
           </div>
@@ -591,7 +593,8 @@ function AIChatWidget() {
               disabled={loading}
               className="bg-indigo-600 text-white p-3 rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 disabled:opacity-50 active:scale-90"
             >
-              <MessageSquare size={18} md:size={20} />
+              {/* Fixed invalid 'md:size' prop by using 'size={20}' only */}
+              <MessageSquare size={20} />
             </button>
           </div>
         </div>
@@ -601,7 +604,8 @@ function AIChatWidget() {
           className="bg-indigo-600 text-white w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center shadow-[0_15px_30px_rgba(79,70,229,0.3)] hover:scale-110 transition-all hover:bg-indigo-700 active:scale-95 group relative"
         >
           <div className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-green-400 border-4 border-white rounded-full"></div>
-          <MessageSquare size={24} md:size={28} />
+          {/* Fixed invalid 'md:size' prop by using 'size={28}' only */}
+          <MessageSquare size={28} />
         </button>
       )}
     </div>
