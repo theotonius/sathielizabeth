@@ -1,21 +1,40 @@
 {
   "hero": {
-    "name": "Tanvir Ahmed",
+    "name": "SathiEliza",
     "title": "Digital Marketing Expert & Growth Hacker",
     "description": "I help businesses thrive in the digital age. Using data-driven strategies and creative campaigns to connect your brand with the right audience.",
     "cta": "Get Free Consultation"
   },
   "about": {
     "text": "Over the past 5 years, I've worked with diverse clients globally. My primary focus is to maximize your Return on Investment (ROI) through performance-driven marketing strategies that actually move the needle.",
-    "image": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&q=80",
+    "image": "https://media.licdn.com/dms/image/v2/D5603AQGkhp6bBYD2ew/profile-displayphoto-crop_800_800/B56Zwo2P.rHAAI-/0/1770211836751?e=1773273600&v=beta&t=GaY4eauyx1mEPxwyOicOr8nTR-Hb0m4gPOYr2R2l3_s",
     "experience": "5+ Years of Digital Marketing Excellence",
-    "skills": ["Google Ads", "Facebook Meta Ads", "SEO Optimization", "Content Strategy", "Email Automation", "Data Analytics"],
+    "skills": [
+      "Google Ads",
+      "Facebook Meta Ads",
+      "SEO Optimization",
+      "Content Strategy",
+      "Email Automation",
+      "Data Analytics"
+    ],
     "usp": "I don't just run ads; I build high-converting ecosystems that turn clicks into loyal customers using advanced psychological triggers and data-backed insights.",
     "stats": [
-      { "label": "Successful Projects", "value": "150+" },
-      { "label": "Ad Spend Managed", "value": "$500k+" },
-      { "label": "Satisfied Clients", "value": "100+" },
-      { "label": "ROI Growth", "value": "300%" }
+      {
+        "label": "Successful Projects",
+        "value": "150+"
+      },
+      {
+        "label": "Ad Spend Managed",
+        "value": "$500k+"
+      },
+      {
+        "label": "Satisfied Clients",
+        "value": "100+"
+      },
+      {
+        "label": "ROI Growth",
+        "value": "300%"
+      }
     ]
   },
   "services": [

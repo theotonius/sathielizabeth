@@ -29,7 +29,7 @@ const Navbar: React.FC = () => {
               <TrendingUp size={20} className="md:w-6 md:h-6" />
             </div>
             <span className="text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
-              MarketPro
+              SathiEliza
             </span>
           </div>
           <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
@@ -274,7 +274,7 @@ function MainSite({ data }: { data: SiteData }) {
             <div className="space-y-6 text-center md:text-left">
               <div className="flex items-center gap-2 text-white justify-center md:justify-start">
                 <TrendingUp size={28} className="text-indigo-500" />
-                <span className="text-2xl font-bold tracking-tight">MarketPro</span>
+                <span className="text-2xl font-bold tracking-tight">SathiEliza</span>
               </div>
               <p className="text-sm leading-relaxed max-w-sm mx-auto md:mx-0">
                 Your trusted digital marketing partner.
@@ -330,7 +330,7 @@ function AdminDashboard({ data, onSave, onLogout }: { data: SiteData, onSave: (d
       <aside className="w-64 bg-slate-900 text-slate-400 flex flex-col fixed h-full">
         <div className="p-6 flex items-center gap-3 text-white border-b border-slate-800">
           <TrendingUp size={20} className="text-indigo-500" />
-          <span className="font-bold text-lg">MarketPro Admin</span>
+          <span className="font-bold text-lg">SathiEliza Admin</span>
         </div>
         <nav className="flex-1 p-4 space-y-2">
           {tabs.map(tab => (

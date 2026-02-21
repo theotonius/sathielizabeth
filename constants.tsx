@@ -3,7 +3,7 @@ import { SiteData, ChartData } from './types';
 
 export const INITIAL_DATA: SiteData = {
   hero: {
-    name: "Tanvir Ahmed",
+    name: "SathiEliza",
     title: "Digital Marketing Expert & Growth Hacker",
     description: "I help businesses thrive in the digital age. Using data-driven strategies and creative campaigns to connect your brand with the right audience.",
     cta: "Get Free Consultation"
