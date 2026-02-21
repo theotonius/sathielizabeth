@@ -68,6 +68,41 @@ const Navbar: React.FC = () => {
 export default function App() {
   const [data, setData] = useState<SiteData>(INITIAL_DATA);
   const [formStatus, setFormStatus] = useState<'idle' | 'submitting' | 'success'>('idle');
+  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const [errors, setErrors] = useState({ name: '', email: '', message: '' });
+  const [touched, setTouched] = useState({ name: false, email: false, message: false });
+
+  const validateField = (name: string, value: string) => {
+    let error = '';
+    if (name === 'name') {
+      if (!value.trim()) error = 'Name is required';
+      else if (value.length < 2) error = 'Name must be at least 2 characters';
+    }
+    if (name === 'email') {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!value.trim()) error = 'Email is required';
+      else if (!emailRegex.test(value)) error = 'Invalid email format';
+    }
+    if (name === 'message') {
+      if (!value.trim()) error = 'Message is required';
+      else if (value.length < 10) error = 'Message must be at least 10 characters';
+    }
+    setErrors(prev => ({ ...prev, [name]: error }));
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (touched[name as keyof typeof touched]) {
+      validateField(name, value);
+    }
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setTouched(prev => ({ ...prev, [name]: true }));
+    validateField(name, value);
+  };
 
   useEffect(() => {
     const saved = localStorage.getItem('marketpro_data');
@@ -84,11 +119,27 @@ export default function App() {
 
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate all fields on submit
+    const newErrors = { name: '', email: '', message: '' };
+    let hasErrors = false;
+
+    if (!formData.name.trim()) { newErrors.name = 'Name is required'; hasErrors = true; }
+    if (!formData.email.trim()) { newErrors.email = 'Email is required'; hasErrors = true; }
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) { newErrors.email = 'Invalid email format'; hasErrors = true; }
+    if (!formData.message.trim()) { newErrors.message = 'Message is required'; hasErrors = true; }
+
+    setErrors(newErrors);
+    setTouched({ name: true, email: true, message: true });
+
+    if (hasErrors) return;
+
     setFormStatus('submitting');
     setTimeout(() => {
       setFormStatus('success');
+      setFormData({ name: '', email: '', message: '' });
+      setTouched({ name: false, email: false, message: false });
       setTimeout(() => setFormStatus('idle'), 3000);
-      (e.target as HTMLFormElement).reset();
     }, 1500);
   };
 
@@ -97,7 +148,7 @@ export default function App() {
       <Navbar />
 
       {/* Hero Section */}
-      <section id="home" className="relative pt-24 pb-16 md:pt-40 md:pb-24 px-4 overflow-hidden bg-slate-50">
+      <section id="home" className="relative pt-28 pb-12 md:pt-40 md:pb-24 px-4 overflow-hidden bg-slate-50">
         <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 lg:gap-20 items-center relative z-10">
           <div className="space-y-6 md:space-y-8 text-center md:text-left">
             <div className="inline-flex items-center gap-2 bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest mx-auto md:mx-0 shadow-sm">
@@ -153,7 +204,7 @@ export default function App() {
       </section>
 
       {/* Services Section */}
-      <section id="services" className="py-20 md:py-32 bg-white px-4 border-y border-slate-100">
+      <section id="services" className="py-16 md:py-32 bg-white px-4 border-y border-slate-100">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12 md:mb-20">
             <h2 className="text-3xl md:text-4xl font-extrabold mb-4 text-slate-900">Expert Services</h2>
@@ -178,7 +229,7 @@ export default function App() {
       </section>
 
       {/* Projects Section */}
-      <section id="projects" className="py-20 md:py-32 px-4 bg-slate-50">
+      <section id="projects" className="py-16 md:py-32 px-4 bg-slate-50">
         <div className="max-w-7xl mx-auto">
           <div className="mb-12 md:mb-16 text-center md:text-left">
             <h2 className="text-3xl md:text-4xl font-extrabold mb-4 text-slate-900">Featured Projects</h2>
@@ -203,7 +254,7 @@ export default function App() {
       </section>
 
       {/* Testimonials Section */}
-      <section id="testimonials" className="py-20 md:py-32 px-4 bg-white border-b border-slate-100">
+      <section id="testimonials" className="py-16 md:py-32 px-4 bg-white border-b border-slate-100">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12 md:mb-20">
             <h2 className="text-3xl md:text-4xl font-extrabold mb-4 text-slate-900">Client Stories</h2>
@@ -232,7 +283,7 @@ export default function App() {
       </section>
 
       {/* About Section */}
-      <section id="about" className="py-20 md:py-32 px-4 bg-white">
+      <section id="about" className="py-16 md:py-32 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             <div className="relative order-2 lg:order-1">
@@ -308,15 +359,20 @@ export default function App() {
             <button className="bg-white text-indigo-600 px-10 py-4 md:py-5 rounded-full font-bold text-base md:text-lg hover:shadow-2xl transition-all hover:-translate-y-1 active:scale-95 shadow-xl w-full sm:w-auto">
               Book Strategy Call
             </button>
-            <button className="bg-transparent border-2 border-indigo-400 text-white px-10 py-4 md:py-5 rounded-full font-bold text-base md:text-lg hover:bg-white/10 transition-all active:scale-95 w-full sm:w-auto">
+            <a 
+              href="https://wa.me/8801700000000" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="bg-transparent border-2 border-indigo-400 text-white px-10 py-4 md:py-5 rounded-full font-bold text-base md:text-lg hover:bg-white/10 transition-all active:scale-95 w-full sm:w-auto text-center"
+            >
               Contact WhatsApp
-            </button>
+            </a>
           </div>
         </div>
       </section>
 
       {/* Footer & Contact Form */}
-      <footer className="py-16 md:py-24 px-4 bg-slate-900 text-slate-400">
+      <footer className="pt-16 pb-8 md:pt-24 md:pb-12 px-4 bg-slate-900 text-slate-400">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-20">
             <div className="space-y-6 text-center md:text-left">
@@ -360,29 +416,41 @@ export default function App() {
                   <div className="space-y-2">
                     <label className="text-[10px] uppercase font-bold tracking-widest text-slate-500 ml-1">Full Name</label>
                     <input 
-                      required
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      onBlur={handleBlur}
                       type="text" 
                       placeholder="Your Name" 
-                      className="w-full bg-slate-800/50 border border-slate-700/50 rounded-xl px-5 py-3.5 text-sm focus:ring-2 ring-indigo-500/50 outline-none text-white placeholder:text-slate-600 transition-all" 
+                      className={`w-full bg-slate-800/50 border ${touched.name && errors.name ? 'border-red-500' : 'border-slate-700/50'} rounded-xl px-5 py-3.5 text-sm focus:ring-2 ${touched.name && errors.name ? 'ring-red-500/50' : 'ring-indigo-500/50'} outline-none text-white placeholder:text-slate-600 transition-all`} 
                     />
+                    {touched.name && errors.name && <p className="text-[10px] text-red-500 ml-1 font-bold">{errors.name}</p>}
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] uppercase font-bold tracking-widest text-slate-500 ml-1">Email Address</label>
                     <input 
-                      required
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      onBlur={handleBlur}
                       type="email" 
                       placeholder="Your Email" 
-                      className="w-full bg-slate-800/50 border border-slate-700/50 rounded-xl px-5 py-3.5 text-sm focus:ring-2 ring-indigo-500/50 outline-none text-white placeholder:text-slate-600 transition-all" 
+                      className={`w-full bg-slate-800/50 border ${touched.email && errors.email ? 'border-red-500' : 'border-slate-700/50'} rounded-xl px-5 py-3.5 text-sm focus:ring-2 ${touched.email && errors.email ? 'ring-red-500/50' : 'ring-indigo-500/50'} outline-none text-white placeholder:text-slate-600 transition-all`} 
                     />
+                    {touched.email && errors.email && <p className="text-[10px] text-red-500 ml-1 font-bold">{errors.email}</p>}
                   </div>
                   <div className="sm:col-span-2 space-y-2">
                     <label className="text-[10px] uppercase font-bold tracking-widest text-slate-500 ml-1">Your Message</label>
                     <textarea 
-                      required
+                      name="message"
+                      value={formData.message}
+                      onChange={handleInputChange}
+                      onBlur={handleBlur}
                       rows={3}
                       placeholder="Tell us about your project goals..." 
-                      className="w-full bg-slate-800/50 border border-slate-700/50 rounded-xl px-5 py-3.5 text-sm focus:ring-2 ring-indigo-500/50 outline-none text-white placeholder:text-slate-600 transition-all resize-none" 
+                      className={`w-full bg-slate-800/50 border ${touched.message && errors.message ? 'border-red-500' : 'border-slate-700/50'} rounded-xl px-5 py-3.5 text-sm focus:ring-2 ${touched.message && errors.message ? 'ring-red-500/50' : 'ring-indigo-500/50'} outline-none text-white placeholder:text-slate-600 transition-all resize-none`} 
                     />
+                    {touched.message && errors.message && <p className="text-[10px] text-red-500 ml-1 font-bold">{errors.message}</p>}
                   </div>
                   <div className="sm:col-span-2">
                     <button 
@@ -403,101 +471,34 @@ export default function App() {
           </div>
           <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
             <p className="text-[10px] tracking-[0.2em] uppercase font-bold text-slate-500">
-              © 2024 MarketPro Portfolio - All Rights Reserved.
+              © 2026 Sathi Elizabeth Portfolio - All Rights Reserved.
             </p>
             <p className="text-[10px] text-slate-600 uppercase tracking-widest">
-              Developed by <span className="text-slate-400 font-bold">Tanvir Ahmed</span>
+              Developed by <span className="text-slate-400 font-bold">Sobuj Theotonius</span>
             </p>
           </div>
         </div>
       </footer>
 
-      {/* AI Chat Widget */}
-      <AIChatWidget />
+      {/* WhatsApp Widget */}
+      <WhatsAppWidget />
     </div>
   );
 }
 
-function AIChatWidget() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<{role: 'user' | 'ai', text: string}[]>([
-    { role: 'ai', text: "Hello! I am Tanvir's AI Assistant. How can I help you with digital marketing?" }
-  ]);
-  const [input, setInput] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const handleSend = async () => {
-    if (!input.trim() || loading) return;
-    const userMsg = input;
-    setInput('');
-    setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
-    setLoading(true);
-    try {
-      const copy = await generateMarketingCopy(userMsg, "Marketing advice or strategy explanation");
-      setMessages(prev => [...prev, { role: 'ai', text: copy || 'I processed your request, but could not generate a response.' }]);
-    } catch (e) {
-      setMessages(prev => [...prev, { role: 'ai', text: "An error occurred. Please try again later." }]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+function WhatsAppWidget() {
   return (
     <div className="fixed bottom-4 right-4 md:bottom-8 md:right-8 z-[200]">
-      {isOpen ? (
-        <div className="glass w-[calc(100vw-2rem)] sm:w-80 md:w-[400px] h-[500px] md:h-[550px] rounded-[2rem] md:rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden border border-white/40 animate-in zoom-in-95 duration-200 origin-bottom-right">
-          <div className="bg-indigo-600 p-5 md:p-6 text-white flex justify-between items-center shadow-lg">
-            <div className="flex items-center gap-3">
-              <div className="bg-white/20 p-2 rounded-lg backdrop-blur-md">
-                <Sparkles size={20} />
-              </div>
-              <div className="flex flex-col">
-                <span className="font-bold text-xs md:text-sm leading-none">Expert AI Assistant</span>
-                <span className="text-[10px] opacity-70 mt-1">Always Active</span>
-              </div>
-            </div>
-            <button onClick={() => setIsOpen(false)} className="hover:bg-white/10 p-2 rounded-full transition-colors"><X size={20} /></button>
-          </div>
-          <div className="flex-1 overflow-y-auto p-5 md:p-6 space-y-6 bg-slate-50/30">
-            {messages.map((m, i) => (
-              <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-2`}>
-                <div className={`max-w-[85%] p-4 rounded-2xl text-xs md:text-sm leading-relaxed shadow-sm ${m.role === 'user' ? 'bg-indigo-600 text-white' : 'bg-white text-slate-800 border border-slate-100'}`}>
-                  {m.text}
-                </div>
-              </div>
-            ))}
-            {loading && (
-              <div className="flex gap-2 items-center text-[10px] md:text-xs text-indigo-500 font-bold animate-pulse px-2">
-                <Sparkles size={14} /> AI is typing...
-              </div>
-            )}
-          </div>
-          <div className="p-4 md:p-6 bg-white border-t border-slate-100 flex gap-3">
-            <input 
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyPress={e => e.key === 'Enter' && handleSend()}
-              placeholder="Ask a marketing question..." 
-              className="flex-1 bg-slate-50 border-none rounded-xl px-4 md:px-5 py-3 text-xs md:text-sm focus:ring-2 ring-indigo-500 outline-none shadow-inner transition-all" 
-            />
-            <button 
-              onClick={handleSend}
-              disabled={loading}
-              className="bg-indigo-600 text-white p-3 rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 disabled:opacity-50 active:scale-90"
-            >
-              <MessageSquare size={20} />
-            </button>
-          </div>
-        </div>
-      ) : (
-        <button 
-          onClick={() => setIsOpen(true)}
-          className="bg-indigo-600 text-white w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center shadow-[0_15px_30px_rgba(79,70,229,0.3)] hover:scale-110 transition-all hover:bg-indigo-700 active:scale-95 group relative"
-        >
-          <div className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-green-400 border-4 border-white rounded-full"></div>
-          <MessageSquare size={28} />
-        </button>
-      )}
+      <a 
+        href="https://wa.me/+8801736590876" 
+        target="_blank" 
+        rel="noopener noreferrer"
+        className="bg-[#25D366] text-white w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center shadow-[0_15px_30px_rgba(37,211,102,0.3)] hover:scale-110 transition-all hover:bg-[#128C7E] active:scale-95 group relative"
+        title="Chat on WhatsApp"
+      >
+        <div className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-green-400 border-4 border-white rounded-full animate-pulse"></div>
+        <MessageSquare size={28} />
+      </a>
     </div>
   );
 }
