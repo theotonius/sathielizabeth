@@ -69,6 +69,8 @@ const Navbar: React.FC = () => {
 // --- Main App ---
 export default function App() {
   const [data, setData] = useState<SiteData>(INITIAL_DATA);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
   const [formStatus, setFormStatus] = useState<'idle' | 'submitting' | 'success'>('idle');
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [errors, setErrors] = useState({ name: '', email: '', message: '' });
@@ -107,6 +109,11 @@ export default function App() {
   };
 
   useEffect(() => {
+    const token = localStorage.getItem('marketpro_token');
+    if (token === 'demo-token-123') {
+      setIsLoggedIn(true);
+    }
+    
     const fetchData = async () => {
       try {
         const response = await fetch('/api/data');
@@ -406,7 +413,14 @@ export default function App() {
                 <li><a href="#services" className="hover:text-white transition-colors">Services</a></li>
                 <li><a href="#projects" className="hover:text-white transition-colors">Projects</a></li>
                 <li><a href="#testimonials" className="hover:text-white transition-colors">Testimonials</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
+                <li>
+                  <button 
+                    onClick={() => setShowLogin(true)} 
+                    className="hover:text-white transition-colors flex items-center gap-2"
+                  >
+                    Admin Login
+                  </button>
+                </li>
               </ul>
             </div>
             
@@ -495,15 +509,132 @@ export default function App() {
       {/* Scroll To Top Button */}
       <ScrollToTop />
 
-      {/* Admin Panel Toggle (Simple secret: add ?admin=true to URL) */}
-      {window.location.search.includes('admin=true') && (
-        <AdminPanel data={data} onSave={updateData} />
+      {/* Admin Panel Toggle */}
+      {isLoggedIn && (
+        <AdminPanel data={data} onSave={updateData} onLogout={() => {
+          localStorage.removeItem('marketpro_token');
+          setIsLoggedIn(false);
+        }} />
       )}
+
+      {/* Login Modal */}
+      {showLogin && !isLoggedIn && (
+        <LoginPage 
+          onLogin={(token) => {
+            localStorage.setItem('marketpro_token', token);
+            setIsLoggedIn(true);
+            setShowLogin(false);
+          }} 
+          onClose={() => setShowLogin(false)} 
+        />
+      )}
+
     </div>
   );
 }
 
-function AdminPanel({ data, onSave }: { data: SiteData, onSave: (data: SiteData) => void }) {
+function LoginPage({ onLogin, onClose }: { onLogin: (token: string) => void, onClose: () => void }) {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+      
+      const result = await response.json();
+      if (result.success) {
+        onLogin(result.token);
+      } else {
+        setError(result.message || 'Login failed');
+      }
+    } catch (err) {
+      setError('Connection error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[500] bg-slate-900/95 backdrop-blur-md flex items-center justify-center p-4">
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl p-8 md:p-12 relative"
+      >
+        <button onClick={onClose} className="absolute top-8 right-8 text-slate-400 hover:text-slate-600">
+          <X size={24} />
+        </button>
+        
+        <div className="text-center mb-10">
+          <div className="bg-indigo-600 text-white w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-indigo-200">
+            <TrendingUp size={32} />
+          </div>
+          <h2 className="text-2xl font-bold text-slate-900">Admin Login</h2>
+          <p className="text-slate-500 mt-2">Enter your credentials to manage site</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {error && (
+            <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm font-medium border border-red-100 animate-shake">
+              {error}
+            </div>
+          )}
+          
+          <div className="space-y-2">
+            <label className="text-xs font-bold uppercase tracking-widest text-slate-400 ml-1">Username</label>
+            <div className="relative">
+              <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <input 
+                type="text"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-12 pr-4 py-3.5 text-sm focus:ring-2 ring-indigo-500 outline-none transition-all"
+                placeholder="admin"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs font-bold uppercase tracking-widest text-slate-400 ml-1">Password</label>
+            <div className="relative">
+              <Zap className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <input 
+                type="password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-12 pr-4 py-3.5 text-sm focus:ring-2 ring-indigo-500 outline-none transition-all"
+                placeholder="••••••••"
+                required
+              />
+            </div>
+          </div>
+
+          <button 
+            type="submit"
+            disabled={loading}
+            className="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
+          >
+            {loading ? 'Authenticating...' : 'Sign In'}
+            {!loading && <Send size={18} />}
+          </button>
+        </form>
+      </motion.div>
+    </div>
+  );
+}
+
+function AdminPanel({ data, onSave, onLogout }: { data: SiteData, onSave: (data: SiteData) => void, onLogout: () => void }) {
   const [isOpen, setIsOpen] = useState(false);
   const [editData, setEditData] = useState(data);
 
@@ -519,12 +650,20 @@ function AdminPanel({ data, onSave }: { data: SiteData, onSave: (data: SiteData)
 
   if (!isOpen) {
     return (
-      <button 
-        onClick={() => setIsOpen(true)}
-        className="fixed bottom-4 left-4 z-[200] bg-slate-900 text-white px-4 py-2 rounded-full text-xs font-bold shadow-xl border border-slate-700 hover:bg-slate-800 transition-all flex items-center gap-2"
-      >
-        <PenTool size={14} /> Admin Panel
-      </button>
+      <div className="fixed bottom-4 left-4 z-[200] flex gap-2">
+        <button 
+          onClick={() => setIsOpen(true)}
+          className="bg-slate-900 text-white px-4 py-2 rounded-full text-xs font-bold shadow-xl border border-slate-700 hover:bg-slate-800 transition-all flex items-center gap-2"
+        >
+          <PenTool size={14} /> Admin Panel
+        </button>
+        <button 
+          onClick={onLogout}
+          className="bg-white text-slate-900 px-4 py-2 rounded-full text-xs font-bold shadow-xl border border-slate-200 hover:bg-slate-50 transition-all flex items-center gap-2"
+        >
+          Logout
+        </button>
+      </div>
     );
   }
 

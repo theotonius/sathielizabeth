@@ -34,6 +34,18 @@ async function startServer() {
     }
   });
 
+  // Simple Login API
+  app.post("/api/login", (req, res) => {
+    const { username, password } = req.body;
+    // For demo purposes, using hardcoded credentials. 
+    // In a real app, use environment variables and hashed passwords.
+    if (username === "admin" && password === "admin123") {
+      res.json({ success: true, token: "demo-token-123" });
+    } else {
+      res.status(401).json({ success: false, message: "Invalid credentials" });
+    }
+  });
+
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
